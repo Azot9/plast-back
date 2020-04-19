@@ -16,11 +16,22 @@ var UserSchema = new mongoose.Schema({
         minlength: 3,
         maxlength: 255
     },
-    checklists: {
+    check_list_zero: {
+        type: Array,
+        required: true,
+    },
+    check_list_first: {
+        type: Array,
+        required: true,
+    },
+    check_list_second: {
         type: Array,
         required: true,
     }
 });
+
+
+
 UserSchema.methods.generateAuthToken = function () {
     const token = jwt.sign({ _id: this._id }, config.get('myprivatekey')); //get the private key from the config file -> environment variable
     return token;

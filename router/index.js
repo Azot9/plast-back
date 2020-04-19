@@ -4,6 +4,7 @@ const { User } = require("../models/User");
 const { Vyhovnyk } = require("../models/Vyhovnyk");
 const { validateLogin, validateRegistration } = require("../plugins/validate");
 const express = require("express");
+const CHECK_LISTS = require("../static/emptyCheckLists");
 const router = express.Router();
 
 router.post("/", async (req, res) => {
@@ -11,18 +12,25 @@ router.post("/", async (req, res) => {
   console.log(req.body);
   const { error } = validateLogin(req.body);
   if (error) return res.status(401).send(error.details[0].message);
-
+  let app_user;
   //find an existing user
-  let user = await User.findOne({ email: req.body.email });
-  console.log(user);
-  if (user) {
-    console.log(bcrypt.compareSync(req.body.password, user.password));
-    if (bcrypt.compareSync(req.body.password, user.password)) {
+  if (req.body.is_vyhovnyk) {
+    app_user = await User.findOne({ email: req.body.email });
+  } else {
+    app_user = await Vyhovnyk.findOne({ email: req.body.email });
+  }
+  console.log(app_user);
+  if (app_user) {
+    console.log(bcrypt.compareSync(req.body.password, app_user.password));
+    if (bcrypt.compareSync(req.body.password, app_user.password)) {
       console.log("succes");
-      const token = user.generateAuthToken();
+      const token = app_user.generateAuthToken();
       return res.header("x-auth-token", token).send({
-        _id: user._id,
-        email: user.email
+        id: app_user._id,
+        name: app_user.name,
+        check_list_zero: app_user.check_list_zero,
+        check_list_first: app_user.check_list_first,
+        check_list_second: app_user.check_list_second
       });
     }
   }
@@ -56,7 +64,9 @@ router.post("/registration", async (req, res) => {
       surname: req.body.surname,
       password: req.body.password,
       email: req.body.email,
-      checklists: []
+      check_list_zero: CHECK_LISTS.check_list_zero,
+      check_list_first: CHECK_LISTS.check_list_first,
+      check_list_second: CHECK_LISTS.check_list_second
     });
   }
 
