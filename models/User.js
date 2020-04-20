@@ -3,6 +3,18 @@ const config = require('config');
 const jwt = require('jsonwebtoken');
 
 var UserSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+        minlength: 3,
+        maxlength: 255,
+    },
+    surname: {
+        type: String,
+        required: true,
+        minlength: 3,
+        maxlength: 255,
+    },
     email: {
         type: String,
         required: true,
@@ -17,15 +29,15 @@ var UserSchema = new mongoose.Schema({
         maxlength: 255
     },
     check_list_zero: {
-        type: Array,
+        type: Object,
         required: true,
     },
     check_list_first: {
-        type: Array,
+        type: Object,
         required: true,
     },
     check_list_second: {
-        type: Array,
+        type: Object,
         required: true,
     }
 });

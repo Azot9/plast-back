@@ -4,7 +4,6 @@ const CHECK_LISTS = {
         list: [
             {
                 section_id: "A",
-                section_name: null,
                 section_list: [
                     {
                         id: 1,
@@ -16,7 +15,7 @@ const CHECK_LISTS = {
                     },
                     {
                         id: 3,
-                        checked: false
+                        checked: true
                     }
                 ]
             }

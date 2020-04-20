@@ -2,36 +2,61 @@ const auth = require("../middleware/auth");
 const bcrypt = require("bcrypt");
 const { User } = require("../models/User");
 const { Vyhovnyk } = require("../models/Vyhovnyk");
-const { validateLogin, validateRegistration } = require("../plugins/validate");
+const { validateLogin, validateRegistration, validateEmail } = require("../plugins/validate");
 const express = require("express");
 const CHECK_LISTS = require("../static/emptyCheckLists");
 const router = express.Router();
 
 router.post("/", async (req, res) => {
 
-  console.log(req.body);
+
   const { error } = validateLogin(req.body);
   if (error) return res.status(401).send(error.details[0].message);
   let app_user;
-  //find an existing user
   if (req.body.is_vyhovnyk) {
-    app_user = await User.findOne({ email: req.body.email });
-  } else {
     app_user = await Vyhovnyk.findOne({ email: req.body.email });
+  } else {
+    app_user = await User.findOne({ email: req.body.email });
   }
-  console.log(app_user);
   if (app_user) {
-    console.log(bcrypt.compareSync(req.body.password, app_user.password));
     if (bcrypt.compareSync(req.body.password, app_user.password)) {
-      console.log("succes");
       const token = app_user.generateAuthToken();
-      return res.header("x-auth-token", token).send({
-        id: app_user._id,
-        name: app_user.name,
-        check_list_zero: app_user.check_list_zero,
-        check_list_first: app_user.check_list_first,
-        check_list_second: app_user.check_list_second
-      });
+      if (req.body.is_vyhovnyk) {
+
+        let gurtok = [];
+        console.log(app_user.gurtok.length);
+
+        if (app_user.gurtok.length > 0) {
+          for (const child of app_user.gurtok) {
+            const one_child = await User.findOne({ _id: child });
+            gurtok.push({
+              id: one_child._id,
+              name: one_child.name,
+              check_list_zero: one_child.check_list_zero,
+              check_list_first: one_child.check_list_first,
+              check_list_second: one_child.check_list_second
+            })
+          }
+        }
+
+
+        console.log(gurtok);
+        return res.header("x-auth-token", token).send({
+          id: app_user._id,
+          name: app_user.name,
+          gurtok,
+          is_vyhovnyk: req.body.is_vyhovnyk
+        });
+      } else {
+        return res.header("x-auth-token", token).send({
+          id: app_user._id,
+          name: app_user.name,
+          check_list_zero: app_user.check_list_zero,
+          check_list_first: app_user.check_list_first,
+          check_list_second: app_user.check_list_second,
+          is_vyhovnyk: req.body.is_vyhovnyk
+        });
+      }
     }
   }
   return res.status(400).send("user not found");
@@ -41,9 +66,7 @@ router.post("/", async (req, res) => {
 
 
 router.post("/registration", async (req, res) => {
-  console.log(req.body);
   const { error } = validateRegistration(req.body);
-  console.log(error);
   if (error) return res.status(401).send(error.details[0].message);
 
   //find an existing user
@@ -89,6 +112,25 @@ router.post("/lol", async (req, res) => {
   auth(req, res, () => {
     res.header().send({
       lol: "lol"
+    });
+  });
+});
+
+router.post("/add_child", async (req, res) => {
+  auth(req, res, async () => {
+
+    const { error } = validateEmail(req.body);
+    if (error) return res.status(401).send(error.details[0].message);
+    let new_child = await User.findOne({ email: req.body.email });
+
+    if (new_child) {
+      app_user = await Vyhovnyk.findOne({ _id: req.body.id });
+      app_user.gurtok.push(new_child.id);
+      app_user.save();
+    }
+
+    res.header().send({
+      lol: req.body
     });
   });
 });
