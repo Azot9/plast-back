@@ -28,16 +28,8 @@ var UserSchema = new mongoose.Schema({
         minlength: 3,
         maxlength: 255
     },
-    check_list_zero: {
-        type: Object,
-        required: true,
-    },
-    check_list_first: {
-        type: Object,
-        required: true,
-    },
-    check_list_second: {
-        type: Object,
+    check_lists: {
+        type: Array,
         required: true,
     }
 });

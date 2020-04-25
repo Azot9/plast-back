@@ -1,5 +1,5 @@
-const CHECK_LISTS = {
-    check_list_zero: {
+const CHECK_LISTS = [
+    {
         id: 0,
         list: [
             {
@@ -7,7 +7,7 @@ const CHECK_LISTS = {
                 section_list: [
                     {
                         id: 1,
-                        checked: true
+                        checked: false
                     },
                     {
                         id: 2,
@@ -15,13 +15,13 @@ const CHECK_LISTS = {
                     },
                     {
                         id: 3,
-                        checked: true
+                        checked: false
                     }
                 ]
             }
         ]
     },
-    check_list_first: {
+    {
         id: 1,
         list: [
             {
@@ -60,7 +60,7 @@ const CHECK_LISTS = {
             }
         ]
     },
-    check_list_second: {
+    {
         id: 2,
         list: [
             {
@@ -82,6 +82,6 @@ const CHECK_LISTS = {
             }
         ]
     }
-}
+]
 
 module.exports = CHECK_LISTS;
